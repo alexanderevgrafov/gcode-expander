@@ -1,0 +1,16 @@
+# Libs and IDE files
+node_modules
+bower_components
+.sass-cache
+.idea
+api_config.json
+.jscache
+# Mac stuff
+*/.DS_Store
+
+npm-debug**.log
+.env
+
+
+*.gcode
+*.svg
