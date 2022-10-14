@@ -1,0 +1,18 @@
+{
+  "name": "gcode-expander",
+  "description": "GCode expander to cut loops better",
+  "version": "0.1.0",
+  "scripts": {
+    "audit": "node node_modules/yarn-audit/run-audit.js"
+  },
+  "dependencies": {
+    "command-line-args": "^5.2.1",
+    "lodash": "^4.17.15"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">= 14.0.0"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
