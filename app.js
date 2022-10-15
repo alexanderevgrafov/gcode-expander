@@ -9,7 +9,7 @@ const optionDefinitions = [
   { name: 'in', type: String, defaultOption: true },
   { name: 'out', type: String, required: true },
   { name: 'overlap', alias: 'o', type: Number, defaultValue: 5 },
-  { name: 'startPace', alias: 'p', type: Number, defaultValue: 300 },
+  { name: 'startPace', alias: 'p', type: Number },
   { name: 'paceIncrement', alias: 'i', type: Number, defaultValue: 100 },
   { name: 'paceDistance', alias: 'd', type: Number, defaultValue: 10 }, // in 0.1mm one-tenth
 ]
@@ -111,8 +111,13 @@ function removeSimilarCommands(arr) {
 }
 
 function interpolateLaserPace(startingPoint, commands, fullPace) {
-  let i = 0;
   let pace = options.startPace;
+
+  if (!pace || pace >= fullPace) {
+    return commands;
+  }
+
+  let i = 0;
   let curPos = startingPoint;
   let paceDistance = 0;
   const createdCommands = [];
@@ -130,19 +135,13 @@ function interpolateLaserPace(startingPoint, commands, fullPace) {
       debug('**** dist ', dist);
 
       if (paceDistance + dist > options.paceDistance) {
-        //  do {
         const fracture = (options.paceDistance - paceDistance) / dist;
         const cutPoint = interpolatePoint(curPos, point, fracture);
         pace = Math.min(pace + options.paceIncrement, fullPace);
         newCommand = lineToPoint(cutPoint) + ' F' + pace + ` ; fractured by ${ fracture.toFixed(4) }`;
-        //createdCommands.push(newCommand);
         curPos = cutPoint;
-
         paceDistance = 0;
-        //  dist = distance(curPos, point);
         debug('**** fracture ', fracture.toFixed(2));
-        // } while (dist > 0 && pace < fullPace);
-        //newCommand = lineToPoint(point) + ' F' + pace + ` ; rest of fractured line`;
       } else {
         paceDistance += dist;
         newCommand = lineToPoint(point) + ' F' + pace;
@@ -156,7 +155,6 @@ function interpolateLaserPace(startingPoint, commands, fullPace) {
 
   }
 
-//  commands[0] = commands[0] + ' F' + pace
   return _.concat(createdCommands, commands.slice(i));
 }
 
@@ -165,10 +163,12 @@ function outputFilename(inFileName) {
   const arr = [
     path.basename(inFileName, ext),
     'ovr' + options.overlap,
-    'sp' + options.startPace,
-    'pd' + options.paceDistance,
-    'pi' + options.paceIncrement,
   ];
+  if (options.startPace) {
+    arr.push('sp' + options.startPace);
+    arr.push('pd' + options.paceDistance);
+    arr.push('pi' + options.paceIncrement);
+  }
   return path.dirname(inFileName) + '/' + arr.join('-') + ext;
 }
 
